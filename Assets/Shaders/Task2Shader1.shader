@@ -1,13 +1,17 @@
-Shader "Custom/Task1Shader2"
+Shader "Custom/Task2Shader1"
 {
     Properties
     {
         [HDR] [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [HDR] _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
+        _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
         _FresnelPow("Fresnel Power", Float) = 1.0
-        _FresnelSmoothstep("Fresnel Smoothstep", Vector) = (1, 1, 0, 0)
+        _NoiseScale("Noise Scale", Float) = 1.0
+        _NoiseSpeed("Noise Speed", Float) = 1.0
+        _NoiseAmplitude("Noise Amplitude", Float) = 1.0
     }
 
     SubShader
@@ -36,6 +40,7 @@ Shader "Custom/Task1Shader2"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Assets/Shaders/noise.hlsl"
 
             struct Attributes
             {
@@ -49,17 +54,22 @@ Shader "Custom/Task1Shader2"
                 float4 positionHCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS: TEXCOORD1;
+                float4 noiseWithDerivative: TEXCOORD2;
                 
-                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 2);
+                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 3);
             };
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 half4 _FresnelColor;
+                half2 _ColorSmoothStep;
                 half _Smoothness;
                 half _Metallic;
+                half _Occlusion;
                 half _FresnelPow;
-                half2 _FresnelSmoothstep;
+                half _NoiseScale;
+                half _NoiseSpeed;
+                half _NoiseAmplitude;
             CBUFFER_END
 
             half3 Fresnel(half3 normal, half3 viewDir)
@@ -73,41 +83,60 @@ Shader "Custom/Task1Shader2"
 
             half3 CalculateAlbedo(half3 normal, half3 viewDir)
             {
-                half fresnel = Fresnel(normal, viewDir);
-                fresnel = smoothstep(_FresnelSmoothstep.x - _FresnelSmoothstep.y * 0.5, _FresnelSmoothstep.x + _FresnelSmoothstep.y * 0.5, fresnel);
-                return lerp(_BaseColor, _FresnelColor, fresnel);
+                return lerp(_BaseColor, _FresnelColor, Fresnel(normal, viewDir));
+            }
+
+            half4 CalculateNoise(half2 uv)
+            {
+                return PerlinNoise3DWithDerivative(half3(uv * _NoiseScale, _NoiseSpeed * _Time.x)) * _NoiseAmplitude;
             }
             
-            half3 CalculateColorFromLight(
-                Light light,
+            half3 CalculateColorFromLights(
                 float3 viewDirWS,
                 float3 normalWS,
                 float3 positionWS,
                 float4 positionCS,
-                half3 gi
+                half3 gi,
+                float noise
             )
             {
-                half3 colorAlbedo = CalculateAlbedo(normalWS, viewDirWS);
-                half3 colorDiffuse = saturate(dot(light.direction, normalWS)) * colorAlbedo;// * (half(1.0) - _Smoothness);
+                SurfaceData surfaceData;
 
-                half specularSmoothness = exp2(10 * _Smoothness + 1);
-                half3 colorSpecular = LightingSpecular(light.color, light.direction, normalWS, viewDirWS, 20.0, specularSmoothness) * _Smoothness;
+                surfaceData.specular = half3(0.0, 0.0, 0.0);
+                surfaceData.albedo = lerp(_BaseColor, _FresnelColor, smoothstep(_ColorSmoothStep.x - _ColorSmoothStep.y * 0.5, _ColorSmoothStep.x + _ColorSmoothStep.y * 0.5, noise));
+                surfaceData.alpha = 0.0;
+                surfaceData.emission = half3(0.0, 0.0, 0.0);
+                surfaceData.metallic = _Metallic;
+                surfaceData.normalTS = half3(0.0, 0.0, 1.0);
+                surfaceData.occlusion = _Occlusion;
+                surfaceData.smoothness = _Smoothness;
+                surfaceData.clearCoatMask = 0.0;
+                surfaceData.clearCoatSmoothness = 1.0;
 
-                float3 reflectDirWS = reflect(-viewDirWS, normalWS);
-                half3 colorGlossy = GlossyEnvironmentReflection(reflectDirWS, positionWS, half(1.0) - _Smoothness, half(1.0)) * _Smoothness;
+                InputData inputData = (InputData)0;
 
-                half3 colorReflect = (colorSpecular + colorGlossy) * lerp(half3(1.0, 1.0, 1.0), colorAlbedo, _Metallic);
+                inputData.positionWS = positionWS;
+                inputData.normalWS = normalWS;
+                inputData.viewDirectionWS = viewDirWS;
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(positionCS);
+                inputData.bakedGI = gi;
+                inputData.shadowCoord = TransformWorldToShadowCoord(positionWS);
                 
-                return colorAlbedo + colorReflect;
+                half4 pbr = UniversalFragmentPBR(inputData, surfaceData);
+                
+                return pbr.xyz;
             }
 
             VertexOutput vert(Attributes input)
             {
                 VertexOutput output;
-                
-                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+                output.noiseWithDerivative = CalculateNoise(output.positionWS.xz);
+                output.positionWS.y += output.noiseWithDerivative.w;
+                output.positionHCS = TransformWorldToHClip(output.positionWS);
+                // output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+                output.normalWS = normalize(half3(-output.noiseWithDerivative.x, 1.0, -output.noiseWithDerivative.z));
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS, output.vertexSH);
@@ -121,47 +150,12 @@ Shader "Custom/Task1Shader2"
                 half3 normalWS = normalize(input.normalWS);
                 half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 
-                half3 colorResult;
+                float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi, input.noiseWithDerivative.w);
 
-                Light lightMain = GetMainLight();
-                
-                float3 resultColor = CalculateColorFromLight(lightMain, viewDirWS, normalWS, input.positionWS, input.positionHCS, gi);
-
-                uint lightsAdditionalCount = GetAdditionalLightsCount();
-                for (uint i = 0; i < lightsAdditionalCount; ++i)
-                {
-                    Light lightAdditional = GetAdditionalLight(i, input.positionWS);
-                    
-                    resultColor += CalculateColorFromLight(lightAdditional, viewDirWS, normalWS, input.positionWS, input.positionHCS, gi);
-                }
-                
+                //return half4(input.noiseWithDerivative.xz, 0.0, 1.0);
                 return half4(resultColor, 1.0);
             }
 
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags
-            {
-                "LightMode" = "ShadowCaster" 
-            }
-            
-            ZWrite On
-            ZTest LEqual
-            ColorMask 0
-            
-            HLSLPROGRAM
-        
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
-        
-            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
-        
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
-        
             ENDHLSL
         }
     }

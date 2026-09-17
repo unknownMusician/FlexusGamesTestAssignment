@@ -1,4 +1,4 @@
-Shader "Custom/Shader1"
+Shader "Custom/Task1Shader1"
 {
     Properties
     {
@@ -127,7 +127,7 @@ Shader "Custom/Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
-                half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, input.normalWS);
+                half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 
                 float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi);
                 
