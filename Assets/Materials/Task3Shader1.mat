@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Task2Shader1
-  m_Shader: {fileID: 4800000, guid: 4a8d48427d70a8049ad1e73150223110, type: 3}
+  m_Name: Task3Shader1
+  m_Shader: {fileID: 4800000, guid: 1a4b41581524f354286ce605c47d2418, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -22,20 +22,31 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _HeightTexture:
+        m_Texture: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RenderTexture:
+        m_Texture: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _FresnelPow: 0.3
     - _Metallic: 0
     - _Noise: 1
-    - _NoiseAmplitude: 0.97
+    - _NoiseAmplitude: 2
     - _NoiseScale: 0.75
     - _NoiseSpeed: 9.43
     - _Occlusion: 0.423
+    - _PressureRange: 1
+    - _PresureRange: 0.5
     - _Smoothness: 0.677
     m_Colors:
     - _BaseColor: {r: 0.07440368, g: 0.097521745, b: 0.8301887, a: 1}
     - _ColorSmoothStep: {r: 0.04, g: 0.64, b: 0, a: 0}
     - _FresnelColor: {r: 0.049663108, g: 0.990566, b: 0, a: 1}
+    - _HeightTS: {r: 10, g: 10, b: -5, a: -5}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
