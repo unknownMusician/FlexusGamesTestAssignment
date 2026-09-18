@@ -1,4 +1,4 @@
-Shader "Custom/Task3DrawShader1"
+Shader "Custom/Task4DrawShader1"
 {
     Properties
     {
@@ -68,7 +68,7 @@ Shader "Custom/Task3DrawShader1"
                 half alpha = smoothstep(alphaUnnormalized - _AlphaSmoothing * 0.5, alphaUnnormalized + _AlphaSmoothing * 0.5, 0.5);
                 
                 half dist = distance(input.positionWS, _DrawHeightCenter.xz) / (_DrawRadius * 2.0);
-                half height = Fade(saturate(dist));
+                half height = Fade(saturate(dist)) - 1.0;
 
                 return half4(height, 0.0, 0.0, alpha * _DrawOpacity);
             }

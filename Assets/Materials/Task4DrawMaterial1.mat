@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Task3DrawMaterial1
-  m_Shader: {fileID: 4800000, guid: eda875e8685cc464cb9cf3309997ea38, type: 3}
+  m_Name: Task4DrawMaterial1
+  m_Shader: {fileID: 4800000, guid: b41e401ec8ef212479689a606ac837ae, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -22,25 +22,16 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTexture:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
     - _AlphaSmoothing: 0.6
     - _DrawAlphaRadius: 1.2
-    - _DrawHeightCenter: 0
-    - _DrawOpacity: 0.2
+    - _DrawOpacity: 0.1
     - _DrawRadius: 1
     m_Colors:
-    - _DrawAlphaCenter: {r: 1.1233307, g: 0, b: -2.139985, a: 0}
-    - _DrawHeightCenter: {r: 0.19668782, g: 0.00000014543696, b: -2.391427, a: 0}
+    - _DrawAlphaCenter: {r: 1.3021071, g: 0, b: 11.202605, a: 0}
+    - _DrawHeightCenter: {r: 1.7643591, g: 0.00000007458711, b: 10.315857, a: 0}
     - _UvTS: {r: 10, g: 10, b: -5, a: -5}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
