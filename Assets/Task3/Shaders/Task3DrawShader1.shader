@@ -26,7 +26,7 @@ Shader "Custom/Task3DrawShader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Shaders/noise.hlsl"
+            #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
             {

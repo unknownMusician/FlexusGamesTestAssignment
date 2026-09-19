@@ -1,17 +1,14 @@
-Shader "Custom/Task3Shader1"
+Shader "Custom/Task2Shader1"
 {
     Properties
     {
         [HDR] [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [HDR] _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
-        _HeightTexture("Height Texture", 2D) = "gray" {}
-        _HeightTS("Height Tiling and Offset", Vector) = (1, 1, 0, 0)
         _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
         _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
         _FresnelPow("Fresnel Power", Float) = 1.0
-        _PressureRange("Pressure Range", Float) = 1.0
         _NoiseScale("Noise Scale", Float) = 1.0
         _NoiseSpeed("Noise Speed", Float) = 1.0
         _NoiseAmplitude("Noise Amplitude", Float) = 1.0
@@ -43,13 +40,12 @@ Shader "Custom/Task3Shader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Shaders/noise.hlsl"
+            #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float4 normalOS : NORMAL;
-                float2 uv : TEXCOORD0;
                 float2 lightmapUV : TEXCOORD1;
             };
 
@@ -59,16 +55,11 @@ Shader "Custom/Task3Shader1"
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS: TEXCOORD1;
                 float4 noiseWithDerivative: TEXCOORD2;
-                float2 uv: TEXCOORD3;
-                half height: TEXCOORD4;
                 
-                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 5);
+                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 3);
             };
 
             CBUFFER_START(UnityPerMaterial)
-                TEXTURE2D(_HeightTexture);
-                SAMPLER(sampler_HeightTexture);
-                half4 _HeightTS;
                 half4 _BaseColor;
                 half4 _FresnelColor;
                 half2 _ColorSmoothStep;
@@ -76,7 +67,6 @@ Shader "Custom/Task3Shader1"
                 half _Metallic;
                 half _Occlusion;
                 half _FresnelPow;
-                half _PressureRange;
                 half _NoiseScale;
                 half _NoiseSpeed;
                 half _NoiseAmplitude;
@@ -107,13 +97,13 @@ Shader "Custom/Task3Shader1"
                 float3 positionWS,
                 float4 positionCS,
                 half3 gi,
-                half3 albedo
+                float noise
             )
             {
                 SurfaceData surfaceData;
 
                 surfaceData.specular = half3(0.0, 0.0, 0.0);
-                surfaceData.albedo = albedo;
+                surfaceData.albedo = lerp(_BaseColor, _FresnelColor, smoothstep(_ColorSmoothStep.x - _ColorSmoothStep.y * 0.5, _ColorSmoothStep.x + _ColorSmoothStep.y * 0.5, noise));
                 surfaceData.alpha = 0.0;
                 surfaceData.emission = half3(0.0, 0.0, 0.0);
                 surfaceData.metallic = _Metallic;
@@ -142,24 +132,11 @@ Shader "Custom/Task3Shader1"
                 VertexOutput output;
 
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                half2 heightUv = (output.positionWS.xz - _HeightTS.zw) / _HeightTS.xy;
-
-                half epsilon = 0.02;
-                
-                half texture_value = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv, 0).x;
-                half texture_value_ex = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv + half2(epsilon, 0), 0).x;
-                half texture_value_ez = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv + half2(0, epsilon), 0).x;
-
-                half2 texture_value_derivative = half2(texture_value_ex - texture_value, texture_value_ez - texture_value) / epsilon;
-                
-                half height = (texture_value - 0.5) * _PressureRange; 
-                
                 output.noiseWithDerivative = CalculateNoise(output.positionWS.xz);
-                output.positionWS.y += height;
+                output.positionWS.y += output.noiseWithDerivative.w;
                 output.positionHCS = TransformWorldToHClip(output.positionWS);
-                output.normalWS = normalize(half3(-texture_value_derivative.x, 1.0, -texture_value_derivative.y));
-                output.uv = input.uv;
-                output.height = height;
+                // output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+                output.normalWS = normalize(half3(-output.noiseWithDerivative.x, 1.0, -output.noiseWithDerivative.z));
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS, output.vertexSH);
@@ -173,9 +150,9 @@ Shader "Custom/Task3Shader1"
                 half3 normalWS = normalize(input.normalWS);
                 half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 
-                half3 albedo = lerp(_BaseColor, _FresnelColor, input.height);
-                float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi, albedo);
+                float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi, input.noiseWithDerivative.w);
 
+                //return half4(input.noiseWithDerivative.xz, 0.0, 1.0);
                 return half4(resultColor, 1.0);
             }
 

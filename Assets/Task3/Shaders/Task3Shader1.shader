@@ -1,4 +1,4 @@
-Shader "Custom/Task4Shader1"
+Shader "Custom/Task3Shader1"
 {
     Properties
     {
@@ -43,7 +43,7 @@ Shader "Custom/Task4Shader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Shaders/noise.hlsl"
+            #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
             {
@@ -152,7 +152,7 @@ Shader "Custom/Task4Shader1"
 
                 half2 texture_value_derivative = half2(texture_value_ex - texture_value, texture_value_ez - texture_value) / epsilon;
                 
-                half height = texture_value * _PressureRange; 
+                half height = (texture_value - 0.5) * _PressureRange; 
                 
                 output.noiseWithDerivative = CalculateNoise(output.positionWS.xz);
                 output.positionWS.y += height;
