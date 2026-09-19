@@ -2,8 +2,8 @@ Shader "Custom/Task2Shader1"
 {
     Properties
     {
-        [HDR] [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        [HDR] _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
         _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5

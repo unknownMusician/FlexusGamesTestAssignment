@@ -2,8 +2,8 @@ Shader "Custom/Task4Shader1"
 {
     Properties
     {
-        [HDR] [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        [HDR] _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
         _HeightTexture("Height Texture", 2D) = "gray" {}
         _HeightTS("Height Tiling and Offset", Vector) = (1, 1, 0, 0)
         _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
