@@ -40,7 +40,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _ColorSmoothStep: {r: 1, g: 1, b: 0, a: 0}
-    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
     - _HeightTS: {r: 10, g: 10, b: -5, a: -5}
+    - _SecondaryColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -3,7 +3,7 @@ Shader "Custom/Task1Shader1"
     Properties
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        _SecondaryColor("Secondary Color", Color) = (1, 1, 1, 1)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
         _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
@@ -56,7 +56,7 @@ Shader "Custom/Task1Shader1"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
-                half4 _FresnelColor;
+                half4 _SecondaryColor;
                 half _Smoothness;
                 half _Metallic;
                 half _Occlusion;
@@ -67,7 +67,7 @@ Shader "Custom/Task1Shader1"
             {
                 half fresnel = pow(FlexusTestFresnel(normal, viewDir), _FresnelPow);
 
-                return lerp(_BaseColor, _FresnelColor, fresnel);
+                return lerp(_BaseColor, _SecondaryColor, fresnel);
             }
             
             VertexOutput vert(Attributes input)

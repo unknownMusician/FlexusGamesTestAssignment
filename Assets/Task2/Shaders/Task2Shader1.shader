@@ -3,12 +3,11 @@ Shader "Custom/Task2Shader1"
     Properties
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        _SecondaryColor("Secondary Color", Color) = (1, 1, 1, 1)
         _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
         _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
-        _FresnelPow("Fresnel Power", Float) = 1.0
         _NoiseScale("Noise Scale", Float) = 1.0
         _NoiseSpeed("Noise Speed", Float) = 1.0
         _NoiseAmplitude("Noise Amplitude", Float) = 1.0
@@ -62,12 +61,11 @@ Shader "Custom/Task2Shader1"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
-                half4 _FresnelColor;
+                half4 _SecondaryColor;
                 half2 _ColorSmoothStep;
                 half _Smoothness;
                 half _Metallic;
                 half _Occlusion;
-                half _FresnelPow;
                 half _NoiseScale;
                 half _NoiseSpeed;
                 half _NoiseAmplitude;
@@ -98,7 +96,7 @@ Shader "Custom/Task2Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
-                half3 albedo = lerp(_BaseColor, _FresnelColor, smoothstep(_ColorSmoothStep.x - _ColorSmoothStep.y * 0.5, _ColorSmoothStep.x + _ColorSmoothStep.y * 0.5, input.noiseWithDerivative.w));
+                half3 albedo = lerp(_BaseColor, _SecondaryColor, smoothstep(_ColorSmoothStep.x - _ColorSmoothStep.y * 0.5, _ColorSmoothStep.x + _ColorSmoothStep.y * 0.5, input.noiseWithDerivative.w));
 
                 float3 resultColor = FlexusTestCalculateLightingRealistic(
                     viewDirWS,

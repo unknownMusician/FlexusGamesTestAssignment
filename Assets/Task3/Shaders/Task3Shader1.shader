@@ -3,14 +3,12 @@ Shader "Custom/Task3Shader1"
     Properties
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        _SecondaryColor("Secondary Color", Color) = (1, 1, 1, 1)
         _HeightTexture("Height Texture", 2D) = "gray" {}
         _HeightTS("Height Tiling and Offset", Vector) = (1, 1, 0, 0)
-        _ColorSmoothStep("Color Smoothstep", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
         _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
-        _FresnelPow("Fresnel Power", Float) = 1.0
         _PressureRange("Pressure Range", Float) = 1.0
         _NoiseScale("Noise Scale", Float) = 1.0
         _NoiseSpeed("Noise Speed", Float) = 1.0
@@ -70,13 +68,11 @@ Shader "Custom/Task3Shader1"
                 TEXTURE2D(_HeightTexture);
                 SAMPLER(sampler_HeightTexture);
                 half4 _HeightTS;
-                half4 _BaseColor;
-                half4 _FresnelColor;
-                half2 _ColorSmoothStep;
+                half3 _BaseColor;
+                half3 _SecondaryColor;
                 half _Smoothness;
                 half _Metallic;
                 half _Occlusion;
-                half _FresnelPow;
                 half _PressureRange;
                 half _NoiseScale;
                 half _NoiseSpeed;
@@ -122,7 +118,7 @@ Shader "Custom/Task3Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
-                half3 albedo = lerp(_BaseColor, _FresnelColor, input.height);
+                half3 albedo = lerp(_BaseColor, _SecondaryColor, input.height);
 
                 float3 resultColor = FlexusTestCalculateLightingRealistic(
                     viewDirWS,
