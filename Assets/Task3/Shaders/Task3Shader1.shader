@@ -43,6 +43,7 @@ Shader "Custom/Task3Shader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Assets/Shared/Shaders/shared.hlsl"
             #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
@@ -82,61 +83,11 @@ Shader "Custom/Task3Shader1"
                 half _NoiseAmplitude;
             CBUFFER_END
 
-            half3 Fresnel(half3 normal, half3 viewDir)
-            {
-                half fresnel = saturate(half(1.0) - dot(normal, viewDir));
-
-                fresnel = pow(fresnel, _FresnelPow);
-
-                return fresnel;
-            }
-
-            half3 CalculateAlbedo(half3 normal, half3 viewDir)
-            {
-                return lerp(_BaseColor, _FresnelColor, Fresnel(normal, viewDir));
-            }
-
             half4 CalculateNoise(half2 uv)
             {
                 return PerlinNoise3DWithDerivative(half3(uv * _NoiseScale, _NoiseSpeed * _Time.x)) * _NoiseAmplitude;
             }
             
-            half3 CalculateColorFromLights(
-                float3 viewDirWS,
-                float3 normalWS,
-                float3 positionWS,
-                float4 positionCS,
-                half3 gi,
-                half3 albedo
-            )
-            {
-                SurfaceData surfaceData;
-
-                surfaceData.specular = half3(0.0, 0.0, 0.0);
-                surfaceData.albedo = albedo;
-                surfaceData.alpha = 0.0;
-                surfaceData.emission = half3(0.0, 0.0, 0.0);
-                surfaceData.metallic = _Metallic;
-                surfaceData.normalTS = half3(0.0, 0.0, 1.0);
-                surfaceData.occlusion = _Occlusion;
-                surfaceData.smoothness = _Smoothness;
-                surfaceData.clearCoatMask = 0.0;
-                surfaceData.clearCoatSmoothness = 1.0;
-
-                InputData inputData = (InputData)0;
-
-                inputData.positionWS = positionWS;
-                inputData.normalWS = normalWS;
-                inputData.viewDirectionWS = viewDirWS;
-                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(positionCS);
-                inputData.bakedGI = gi;
-                inputData.shadowCoord = TransformWorldToShadowCoord(positionWS);
-                
-                half4 pbr = UniversalFragmentPBR(inputData, surfaceData);
-                
-                return pbr.xyz;
-            }
-
             VertexOutput vert(Attributes input)
             {
                 VertexOutput output;
@@ -171,10 +122,19 @@ Shader "Custom/Task3Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
-                half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
-
                 half3 albedo = lerp(_BaseColor, _FresnelColor, input.height);
-                float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi, albedo);
+
+                float3 resultColor = FlexusTestCalculateLightingRealistic(
+                    viewDirWS,
+                    normalWS,
+                    input.positionWS,
+                    input.positionHCS,
+                    albedo,
+                    _Metallic,
+                    _Occlusion,
+                    _Smoothness,
+                    SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS)
+                );
 
                 return half4(resultColor, 1.0);
             }

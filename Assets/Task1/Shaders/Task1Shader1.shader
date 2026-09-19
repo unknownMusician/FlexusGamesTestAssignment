@@ -2,10 +2,11 @@ Shader "Custom/Task1Shader1"
 {
     Properties
     {
-        [HDR] [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        [HDR] _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
+        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+        _FresnelColor("Fresnel Color", Color) = (1, 1, 1, 1)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
+        _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
         _FresnelPow("Fresnel Power", Float) = 1.0
     }
 
@@ -35,6 +36,7 @@ Shader "Custom/Task1Shader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Assets/Shared/Shaders/shared.hlsl"
 
             struct Attributes
             {
@@ -57,58 +59,17 @@ Shader "Custom/Task1Shader1"
                 half4 _FresnelColor;
                 half _Smoothness;
                 half _Metallic;
+                half _Occlusion;
                 half _FresnelPow;
             CBUFFER_END
 
-            half3 Fresnel(half3 normal, half3 viewDir)
-            {
-                half fresnel = saturate(half(1.0) - dot(normal, viewDir));
-
-                fresnel = pow(fresnel, _FresnelPow);
-
-                return fresnel;
-            }
-
             half3 CalculateAlbedo(half3 normal, half3 viewDir)
             {
-                return lerp(_BaseColor, _FresnelColor, Fresnel(normal, viewDir));
+                half fresnel = pow(FlexusTestFresnel(normal, viewDir), _FresnelPow);
+
+                return lerp(_BaseColor, _FresnelColor, fresnel);
             }
             
-            half3 CalculateColorFromLights(
-                float3 viewDirWS,
-                float3 normalWS,
-                float3 positionWS,
-                float4 positionCS,
-                half3 gi
-            )
-            {
-                SurfaceData surfaceData;
-
-                surfaceData.specular = half3(0.0, 0.0, 0.0);
-                surfaceData.albedo = CalculateAlbedo(normalWS, viewDirWS);
-                surfaceData.alpha = 0.0;
-                surfaceData.emission = half3(0.0, 0.0, 0.0);
-                surfaceData.metallic = _Metallic;
-                surfaceData.normalTS = half3(0.0, 0.0, 1.0);
-                surfaceData.occlusion = 1.0;
-                surfaceData.smoothness = _Smoothness;
-                surfaceData.clearCoatMask = 0.0;
-                surfaceData.clearCoatSmoothness = 1.0;
-
-                InputData inputData = (InputData)0;
-
-                inputData.positionWS = positionWS;
-                inputData.normalWS = normalWS;
-                inputData.viewDirectionWS = viewDirWS;
-                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(positionCS);
-                inputData.bakedGI = gi;
-                inputData.shadowCoord = TransformWorldToShadowCoord(positionWS);
-                
-                half4 pbr = UniversalFragmentPBR(inputData, surfaceData);
-                
-                return pbr.xyz;
-            }
-
             VertexOutput vert(Attributes input)
             {
                 VertexOutput output;
@@ -127,9 +88,18 @@ Shader "Custom/Task1Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
-                half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 
-                float3 resultColor = CalculateColorFromLights(viewDirWS, normalWS, input.positionWS, input.positionHCS, gi);
+                float3 resultColor = FlexusTestCalculateLightingRealistic(
+                    viewDirWS,
+                    normalWS,
+                    input.positionWS,
+                    input.positionHCS,
+                    CalculateAlbedo(normalWS, viewDirWS),
+                    _Metallic,
+                    _Occlusion,
+                    _Smoothness,
+                    SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS)
+                );
                 
                 return half4(resultColor, 1.0);
             }
