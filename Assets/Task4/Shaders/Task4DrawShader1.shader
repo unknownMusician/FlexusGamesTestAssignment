@@ -2,6 +2,7 @@ Shader "Custom/Task4DrawShader1"
 {
     Properties
     {
+        [MainTexture] _MainTex("_MainTex", 2D) = "black" {}
         _UvTS("UV Tiling and Offset", Vector) = (1, 1, 0, 0)
         _DrawHeightCenter("Draw Height Center", Vector) = (1, 1, 0, 0)
         _DrawAlphaCenter("Draw Alpha Center", Vector) = (1, 1, 0, 0)
@@ -18,7 +19,7 @@ Shader "Custom/Task4DrawShader1"
 
         Pass
         {
-            Blend SrcAlpha OneMinusSrcAlpha
+            Blend One Zero
 
             HLSLPROGRAM
 
@@ -41,9 +42,12 @@ Shader "Custom/Task4DrawShader1"
             {
                 float4 positionHCS : SV_POSITION;
                 float2 positionWS: TEXCOORD0;
+                float2 uv: TEXCOORD1;
             };
 
             CBUFFER_START(UnityPerMaterial)
+                TEXTURE2D(_MainTex);
+                SAMPLER(sampler_point_clamp_MainTex);
                 half3 _DrawHeightCenter;
                 half3 _DrawAlphaCenter;
                 half4 _UvTS;
@@ -65,12 +69,15 @@ Shader "Custom/Task4DrawShader1"
                 
                 output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.positionWS = input.uv * _UvTS.xy + _UvTS.zw;
+                output.uv = input.uv;
 
                 return output;
             }
 
             half4 frag(VertexOutput input) : SV_Target
             {
+                half3 textureValue = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp_MainTex, input.uv).xyz;
+
                 half heightDistance = distance(input.positionWS, _DrawHeightCenter.xz) / (_DrawRadius);
                 half alphaDistance = distance(input.positionWS, _DrawAlphaCenter.xz) / (_DrawAlphaRadius * 0.5);
                 
@@ -79,7 +86,7 @@ Shader "Custom/Task4DrawShader1"
 
                 half alpha = FadeOffset(alphaDistance, -(1.3 + 0.8 * _BorderWidth), 0.6 + 1.0 * _BorderWidth);
 
-                return half4(height, 0.0, 0.0, alpha * _DrawOpacity);
+                return half4(lerp(textureValue, half3(height, 0.0, 0.0), alpha * _DrawOpacity), 1.0);
             }
 
             ENDHLSL
