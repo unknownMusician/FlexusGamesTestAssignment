@@ -32,7 +32,7 @@ RenderSettings:
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
-  m_DefaultReflectionMode: 0
+  m_DefaultReflectionMode: 1
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
@@ -463,40 +463,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1783078409}
-  - component: {fileID: 1783078408}
   - component: {fileID: 1783078410}
   m_Layer: 0
-  m_Name: Task4ScriptUpdateRenderTexture
+  m_Name: Task5ScriptUpdateRenderTexture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1783078408
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1783078407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 948c4ec8f0a145cc888845c979b0baee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Task3ScriptUpdateRenderTexture
-  planeTransform: {fileID: 645211720}
-  planeMeshFilter: {fileID: 645211722}
-  renderTexture0: {fileID: 8400000, guid: ca384cc4a733b0e418372b491b51669c, type: 2}
-  drawMaterial: {fileID: 2100000, guid: c69a4571727378842a82cc75713762ea, type: 2}
-  alphaOffsetScaling: 2
-  drawRadius: 1
-  elevationAdditionRadius: 0.2
-  normalizedAlphaOffsetCap: 1
-  normalizedMaxDragDistance: 0.5
-  additionalDragPointAttraction: 0.3
-  drawOpacity: 0.1
-  borderWidth: 0.5
-  borderAmplitude: 0.5
 --- !u!4 &1783078409
 Transform:
   m_ObjectHideFlags: 0
@@ -521,12 +495,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1783078407}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c90f7952067c4b5b83a24a7972feebca, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ac8a553fe074bb6a8be7fff5ef0c398, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Task4ScriptUpdateRenderTexture
-  renderTexture0: {fileID: 8400000, guid: ca384cc4a733b0e418372b491b51669c, type: 2}
-  renderTexture1: {fileID: 8400000, guid: 3950465e48e89c04e8ed37bb0027656e, type: 2}
-  oscillationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
+  m_EditorClassIdentifier: Assembly-CSharp::Task4Drawer
+  drawAssets:
+    PlaneTransform: {fileID: 645211720}
+    PlaneMeshFilter: {fileID: 645211722}
+    RenderTextureDst: {fileID: 8400000, guid: 6bd6c761d21e96340ac16735129d03c3, type: 2}
+    DrawMaterial: {fileID: 2100000, guid: c69a4571727378842a82cc75713762ea, type: 2}
+  drawProperties:
+    AlphaOffsetScaling: 2
+    DrawRadius: 1
+    ElevationAdditionRadius: 0.5
+    NormalizedAlphaOffsetCap: 1
+    NormalizedMaxDragDistance: 0.5
+    AdditionalDragPointAttraction: 0.6
+    DrawOpacity: 0.2
+    BorderWidth: 1
+    BorderAmplitude: 1
+  renderTextureSrc: {fileID: 8400000, guid: cc6b220df6ce111418aea2f752fd2916, type: 2}
+  simulationMaterial: {fileID: 2100000, guid: 2d186770effa8fb4f9790ccc0b83532a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

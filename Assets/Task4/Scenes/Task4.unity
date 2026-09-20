@@ -464,7 +464,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1783078409}
   - component: {fileID: 1783078411}
-  - component: {fileID: 1783078410}
   m_Layer: 0
   m_Name: Task4ScriptUpdateRenderTexture
   m_TagString: Untagged
@@ -487,21 +486,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1783078410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1783078407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c90f7952067c4b5b83a24a7972feebca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Task4ScriptUpdateRenderTexture
-  renderTextureSrc: {fileID: 8400000, guid: 3950465e48e89c04e8ed37bb0027656e, type: 2}
-  renderTextureDst: {fileID: 8400000, guid: ca384cc4a733b0e418372b491b51669c, type: 2}
-  oscillationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
 --- !u!114 &1783078411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,20 +498,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ac8a553fe074bb6a8be7fff5ef0c398, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Task4Drawer
-  planeTransform: {fileID: 645211720}
-  planeMeshFilter: {fileID: 645211722}
+  drawAssets:
+    PlaneTransform: {fileID: 645211720}
+    PlaneMeshFilter: {fileID: 645211722}
+    RenderTextureDst: {fileID: 8400000, guid: 3950465e48e89c04e8ed37bb0027656e, type: 2}
+    DrawMaterial: {fileID: 2100000, guid: c69a4571727378842a82cc75713762ea, type: 2}
+  drawProperties:
+    AlphaOffsetScaling: 2
+    DrawRadius: 1
+    ElevationAdditionRadius: 0.2
+    NormalizedAlphaOffsetCap: 1
+    NormalizedMaxDragDistance: 0.5
+    AdditionalDragPointAttraction: 0.3
+    DrawOpacity: 0.15
+    BorderWidth: 0.5
+    BorderAmplitude: 0.5
   renderTextureSrc: {fileID: 8400000, guid: ca384cc4a733b0e418372b491b51669c, type: 2}
-  renderTextureDst: {fileID: 8400000, guid: 3950465e48e89c04e8ed37bb0027656e, type: 2}
-  drawMaterial: {fileID: 2100000, guid: c69a4571727378842a82cc75713762ea, type: 2}
-  alphaOffsetScaling: 2
-  drawRadius: 1
-  elevationAdditionRadius: 0.2
-  normalizedAlphaOffsetCap: 1
-  normalizedMaxDragDistance: 0.5
-  additionalDragPointAttraction: 0.3
-  drawOpacity: 0.15
-  borderWidth: 0.5
-  borderAmplitude: 0.5
+  oscillationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
+  simulationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

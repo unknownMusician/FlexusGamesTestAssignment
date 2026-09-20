@@ -26,6 +26,17 @@ float3 FadeDdt(float3 t)
     return 30.0 * t * t * (t * (t - 2.0) + 1.0);
 }
 
+// Hash: integer 1D -> pseudo-random uint
+uint Hash1D(int p)
+{
+    uint h = asuint(p) * 374761393u;
+
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h ^= h >> 16;
+
+    return h;
+}
+
 // Hash: integer 2D -> pseudo-random uint
 uint Hash2D(int2 p)
 {
@@ -49,6 +60,75 @@ uint Hash3D(int3 p)
     h ^= h >> 16;
 
     return h;
+}
+
+float WhiteNoise(float3 value){
+    float3 smallValue = sin(value);
+    float random = dot(smallValue, float3(12.9898, 78.233, 37.719));
+    random = frac(sin(random) * 143758.5453);
+    return random;
+}
+
+float2 VoronoiHash2x2(float2 p)
+{
+    p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)));
+    return frac(sin(p) * 43758.5453123);
+}
+
+float VoronoiNoise(float2 uv, float angleOffset, out float2 outCells)
+{
+    float2 baseCell = floor(uv);
+    float2 localUV = frac(uv);
+
+    float minDistToCell = 8.0;
+    float2 closestCellOffset = float2(0.0, 0.0);
+    float2 toClosestCell = float2(0.0, 0.0);
+
+    // Loop through the 3x3 neighborhood of cells
+    [unroll]
+    for (int x = -1; x <= 1; x++)
+    {
+        [unroll]
+        for (int y = -1; y <= 1; y++)
+        {
+            float2 cellOffset = float2(x, y);
+            
+            // Calculate a pseudo-random point inside the neighboring cell
+            float2 cellPosition = VoronoiHash2x2(baseCell + cellOffset);
+            
+            // Introduce time or custom offset animation via angleOffset if desired
+            cellPosition = 0.5 + 0.5 * sin(angleOffset + cellPosition * 6.2831853);
+
+            // Vector from the pixel to the scattered cell point
+            float2 toCell = cellOffset + cellPosition - localUV;
+            float distToCell = length(toCell);
+
+            // Keep track of the minimum distance
+            if (distToCell < minDistToCell)
+            {
+                minDistToCell = distToCell;
+                closestCellOffset = cellOffset;
+                toClosestCell = toCell;
+            }
+        }
+    }
+
+    // Output the unique cell identifier coordinates
+    outCells = baseCell + closestCellOffset;
+    
+    return minDistToCell;
+}
+
+float Gradient1D(uint hash)
+{
+    // 2 evenly distributed gradient directions
+    static const float gradients[2] =
+    {
+        1,
+        -1,
+    };
+
+    return gradients[hash & 1u];
 }
 
 float2 Gradient2D(uint hash)
@@ -93,6 +173,24 @@ float3 Gradient3D(uint hash)
     return normalize(gradients[hash % 12u]);
 }
 
+
+// ------------------------------------------------------------
+// 1D Perlin
+// ------------------------------------------------------------
+
+float PerlinNoise1D(float p)
+{
+    int i = (int)floor(p);
+    float f = frac(p);
+
+    float u = Fade(f);
+
+    // Dot products at the four corners.
+    float n0 = dot(Gradient1D(Hash1D(i + int(0))), f - float(0));
+    float n1 = dot(Gradient1D(Hash1D(i + int(1))), f - float(1));
+
+    return lerp(n0, n1, u);
+}
 
 // ------------------------------------------------------------
 // 2D Perlin

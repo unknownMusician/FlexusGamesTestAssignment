@@ -483,6 +483,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 948c4ec8f0a145cc888845c979b0baee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Task3ScriptUpdateRenderTexture
+  drawProperties:
+    AlphaOffsetScaling: 1
+    DrawRadius: 1
+    ElevationAdditionRadius: 0.2
+    NormalizedAlphaOffsetCap: 0.489
+    NormalizedMaxDragDistance: 0.5
+    AdditionalDragPointAttraction: 0.35
+    DrawOpacity: 0.078
+    BorderWidth: 1
+    BorderAmplitude: 0.606
+  drawAssets:
+    PlaneTransform: {fileID: 645211720}
+    PlaneMeshFilter: {fileID: 645211722}
+    RenderTextureDst: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
+    DrawMaterial: {fileID: 2100000, guid: 978de180a6b83624792b7e9bff4768c0, type: 2}
   planeTransform: {fileID: 645211720}
   planeMeshFilter: {fileID: 645211722}
   renderTexture0: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}

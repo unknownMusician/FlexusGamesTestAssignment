@@ -86,7 +86,7 @@ Shader "Custom/Task4DrawShader1"
 
                 half alpha = FadeOffset(alphaDistance, -(1.3 + 0.8 * _BorderWidth), 0.6 + 1.0 * _BorderWidth);
 
-                return half4(lerp(textureValue, half3(height, 0.0, 0.0), alpha * _DrawOpacity), 1.0);
+                return half4(lerp(textureValue.xy, half2(height, 0.0), alpha * _DrawOpacity), textureValue.z, 1.0);
             }
 
             ENDHLSL
