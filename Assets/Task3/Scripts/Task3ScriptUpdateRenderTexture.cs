@@ -14,7 +14,8 @@ public sealed class Task3ScriptUpdateRenderTexture : MonoBehaviour
     [SerializeField] [Range(0, 1)] private float normalizedMaxDragDistance = 0.1f;
     [SerializeField] [Range(0, 1)] private float additionalDragPointAttraction = 0.1f;
     [SerializeField] [Range(0, 1)] private float drawOpacity = 0.5f;
-    [SerializeField] private float drawEdgeSmoothing = 0.3f;
+    [SerializeField] [Range(0, 1)] private float borderWidth = 0.5f;
+    [SerializeField] [Range(0, 1)] private float borderAmplitude = 0.5f;
 
     private Vector3? lastDragPoint;
 
@@ -84,7 +85,8 @@ public sealed class Task3ScriptUpdateRenderTexture : MonoBehaviour
         drawMaterial.SetFloat("_DrawRadius", drawRadius);
         drawMaterial.SetFloat("_DrawAlphaRadius", drawRadius + elevationAdditionRadius);
         drawMaterial.SetFloat("_DrawOpacity", drawOpacity);
-        drawMaterial.SetFloat("_AlphaSmoothing", drawEdgeSmoothing);
+        drawMaterial.SetFloat("_BorderWidth", borderWidth);
+        drawMaterial.SetFloat("_BorderAmplitude", borderAmplitude);
         Graphics.Blit(null, renderTexture0, drawMaterial);
     }
 

@@ -26,12 +26,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaSmoothing: 0.6
+    - _BorderAmplitude: 0.5
+    - _BorderWidth: 0.5
     - _DrawAlphaRadius: 1.2
     - _DrawOpacity: 0.1
     - _DrawRadius: 1
     m_Colors:
-    - _DrawAlphaCenter: {r: 1.3021071, g: 0, b: 11.202605, a: 0}
-    - _DrawHeightCenter: {r: 1.7643591, g: 0.00000007458711, b: 10.315857, a: 0}
+    - _DrawAlphaCenter: {r: 0.075208314, g: -0.00000047683716, b: -2.7315116, a: 0}
+    - _DrawHeightCenter: {r: 0.5480327, g: 0.0000005642445, b: -1.8503549, a: 0}
     - _UvTS: {r: 10, g: 10, b: -5, a: -5}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

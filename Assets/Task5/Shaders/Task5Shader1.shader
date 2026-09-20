@@ -1,13 +1,18 @@
-Shader "Custom/Task1Shader1"
+Shader "Custom/Task5Shader1"
 {
     Properties
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         _SecondaryColor("Secondary Color", Color) = (1, 1, 1, 1)
+        _HeightTexture("Height Texture", 2D) = "gray" {}
+        _HeightTS("Height Tiling and Offset", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.5
         _Occlusion("Occlusion", Range(0.0, 1.0)) = 0.5
-        _FresnelSmoothstepCenterScale("Fresnel Smoothstep Center Scale", Vector) = (0.5, 1, 0, 0) 
+        _PressureRange("Pressure Range", Float) = 1.0
+        _NoiseScale("Noise Scale", Float) = 1.0
+        _NoiseSpeed("Noise Speed", Float) = 1.0
+        _NoiseAmplitude("Noise Amplitude", Float) = 1.0
     }
 
     SubShader
@@ -37,11 +42,13 @@ Shader "Custom/Task1Shader1"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Assets/Shared/Shaders/shared.hlsl"
+            #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float4 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
                 float2 lightmapUV : TEXCOORD1;
             };
 
@@ -50,36 +57,56 @@ Shader "Custom/Task1Shader1"
                 float4 positionHCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS: TEXCOORD1;
+                float4 noiseWithDerivative: TEXCOORD2;
+                float2 uv: TEXCOORD3;
+                half height: TEXCOORD4;
                 
-                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 2);
+                DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 5);
             };
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                half4 _SecondaryColor;
+                TEXTURE2D(_HeightTexture);
+                SAMPLER(sampler_HeightTexture);
+                half4 _HeightTS;
+                half3 _BaseColor;
+                half3 _SecondaryColor;
                 half _Smoothness;
                 half _Metallic;
                 half _Occlusion;
-                half2 _FresnelSmoothstepCenterScale;
+                half _PressureRange;
+                half _NoiseScale;
+                half _NoiseSpeed;
+                half _NoiseAmplitude;
             CBUFFER_END
 
-            half3 CalculateAlbedo(half3 normal, half3 viewDir)
+            half4 CalculateNoise(half2 uv)
             {
-                half smoothstepMin = _FresnelSmoothstepCenterScale.x - _FresnelSmoothstepCenterScale.y * 0.5;
-                half smoothstepMax = _FresnelSmoothstepCenterScale.x + _FresnelSmoothstepCenterScale.y * 0.5;
-                
-                half fresnel = smoothstep(smoothstepMin, smoothstepMax, FlexusTestFresnel(normal, viewDir));
-
-                return lerp(_BaseColor, _SecondaryColor, fresnel);
+                return PerlinNoise3DWithDerivative(half3(uv * _NoiseScale, _NoiseSpeed * _Time.x)) * _NoiseAmplitude;
             }
             
             VertexOutput vert(Attributes input)
             {
                 VertexOutput output;
-                
-                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz);
+                half2 heightUv = (output.positionWS.xz - _HeightTS.zw) / _HeightTS.xy;
+
+                half epsilon = 0.02;
+                
+                half texture_value = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv, 0).x;
+                half texture_value_ex = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv + half2(epsilon, 0), 0).x;
+                half texture_value_ez = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv + half2(0, epsilon), 0).x;
+
+                half2 texture_value_derivative = half2(texture_value_ex - texture_value, texture_value_ez - texture_value) / epsilon;
+                
+                half height = texture_value * _PressureRange; 
+                
+                output.noiseWithDerivative = CalculateNoise(output.positionWS.xz);
+                output.positionWS.y += height;
+                output.positionHCS = TransformWorldToHClip(output.positionWS);
+                output.normalWS = normalize(half3(-texture_value_derivative.x, 1.0, -texture_value_derivative.y));
+                output.uv = input.uv;
+                output.height = height;
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS, output.vertexSH);
@@ -91,46 +118,23 @@ Shader "Custom/Task1Shader1"
             {
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 normalWS = normalize(input.normalWS);
+                half3 albedo = lerp(_BaseColor, _SecondaryColor, input.height);
 
                 float3 resultColor = FlexusTestCalculateLightingRealistic(
                     viewDirWS,
                     normalWS,
                     input.positionWS,
                     input.positionHCS,
-                    CalculateAlbedo(normalWS, viewDirWS),
+                    albedo,
                     _Metallic,
                     _Occlusion,
                     _Smoothness,
                     SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS)
                 );
-                
+
                 return half4(resultColor, 1.0);
             }
 
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags
-            {
-                "LightMode" = "ShadowCaster" 
-            }
-            
-            ZWrite On
-            ZTest LEqual
-            ColorMask 0
-            
-            HLSLPROGRAM
-        
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
-        
-            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
-        
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
-        
             ENDHLSL
         }
     }

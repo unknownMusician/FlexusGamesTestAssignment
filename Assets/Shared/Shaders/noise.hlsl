@@ -1,4 +1,7 @@
-﻿// ------------------------------------------------------------
+﻿#ifndef FLEXUS_TEST_NOISE_INCLUDED
+#define FLEXUS_TEST_NOISE_INCLUDED
+
+// ------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------
 
@@ -18,7 +21,7 @@ float3 Fade(float3 t)
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-float3 FadeDt(float3 t)
+float3 FadeDdt(float3 t)
 {
     return 30.0 * t * t * (t * (t - 2.0) + 1.0);
 }
@@ -152,7 +155,7 @@ float4 PerlinNoise3DWithDerivative(float3 p)
     float3 f = frac(p);
 
     float3 u = Fade(f);
-    float3 du = FadeDt(f);
+    float3 du = FadeDdt(f);
 
     // gradients
     float3 g000 = Gradient3D(Hash3D(i + int3(0, 0, 0)));
@@ -218,3 +221,5 @@ float4 PerlinNoise3DWithDerivative(float3 p)
 
     return float4(dnxyz, nxyz);
 }
+
+#endif

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Task2Material1
-  m_Shader: {fileID: 4800000, guid: 4a8d48427d70a8049ad1e73150223110, type: 3}
+  m_Name: Task2Material2
+  m_Shader: {fileID: 4800000, guid: eed34a283b31422488f6ac3432835a42, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -26,12 +26,19 @@ Material:
     m_Ints: []
     m_Floats:
     - _FresnelPow: 0.3
+    - _HeightNoiseAmplitude: 0.91
+    - _HeightNoiseScale: 0.75
+    - _HeightNoiseSpeed: 9.45
     - _Metallic: 0
     - _Noise: 1
     - _NoiseAmplitude: 0.91
     - _NoiseScale: 0.75
     - _NoiseSpeed: 9.43
     - _Occlusion: 0.423
+    - _SkewNoiseAmplitude: 0.5
+    - _SkewNoiseAnisotropy: 1
+    - _SkewNoiseScale: 0.54
+    - _SkewNoiseSpeed: 5.7
     - _Smoothness: 0.677
     m_Colors:
     - _BaseColor: {r: 0.07440368, g: 0.097521745, b: 0.8301887, a: 1}

@@ -5,10 +5,11 @@ Shader "Custom/Task4DrawShader1"
         _UvTS("UV Tiling and Offset", Vector) = (1, 1, 0, 0)
         _DrawHeightCenter("Draw Height Center", Vector) = (1, 1, 0, 0)
         _DrawAlphaCenter("Draw Alpha Center", Vector) = (1, 1, 0, 0)
-        _AlphaSmoothing("Alpha Smoothing", Float) = 0.1
         _DrawRadius("Draw Radius", Float) = 1.0
         _DrawAlphaRadius("Draw Alpha Radius", Float) = 1.0
-        _DrawOpacity("Draw Opacity", Float) = 1.0
+        _DrawOpacity("Draw Opacity", Range(0, 1)) = 1.0
+        _BorderWidth("Border Width", Range(0, 1)) = 0.5
+        _BorderAmplitude("Border Amplitude", Range(0, 1)) = 0.5
     }
 
     SubShader
@@ -49,8 +50,14 @@ Shader "Custom/Task4DrawShader1"
                 half _DrawRadius;
                 half _DrawAlphaRadius;
                 half _DrawOpacity;
-                half _AlphaSmoothing;
+                half _BorderWidth;
+                half _BorderAmplitude;
             CBUFFER_END
+
+            half FadeOffset(half t, half width, half offset)
+            {
+                return Fade(saturate((t - offset) / width + 0.5));
+            }
 
             VertexOutput vert(Attributes input)
             {
@@ -64,11 +71,13 @@ Shader "Custom/Task4DrawShader1"
 
             half4 frag(VertexOutput input) : SV_Target
             {
-                half alphaUnnormalized = distance(input.positionWS, _DrawAlphaCenter.xz) / (_DrawAlphaRadius * 2.0);
-                half alpha = smoothstep(alphaUnnormalized - _AlphaSmoothing * 0.5, alphaUnnormalized + _AlphaSmoothing * 0.5, 0.5);
+                half heightDistance = distance(input.positionWS, _DrawHeightCenter.xz) / (_DrawRadius);
+                half alphaDistance = distance(input.positionWS, _DrawAlphaCenter.xz) / (_DrawAlphaRadius * 0.5);
                 
-                half dist = distance(input.positionWS, _DrawHeightCenter.xz) / (_DrawRadius * 2.0);
-                half height = Fade(saturate(dist)) - 1.0;
+                half trench = heightDistance - 1;
+                half height = lerp(trench, 0, FadeOffset(heightDistance, 0.2 + 3.8 * _BorderAmplitude, 0.9 + 1.1 * _BorderAmplitude));
+
+                half alpha = FadeOffset(alphaDistance, -(1.3 + 0.8 * _BorderWidth), 0.6 + 1.0 * _BorderWidth);
 
                 return half4(height, 0.0, 0.0, alpha * _DrawOpacity);
             }

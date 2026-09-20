@@ -1,4 +1,6 @@
-﻿
+﻿#ifndef FLEXUS_TEST_SHARED_INCLUDED
+#define FLEXUS_TEST_SHARED_INCLUDED
+
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
 half FlexusTestFresnel(half3 normal, half3 viewDir)
@@ -70,3 +72,5 @@ half3 FlexusTestCalculateLightingArtistic(
                 
     return albedo + colorReflect;
 }
+
+#endif
