@@ -4,6 +4,7 @@ Shader "Custom/Task3Shader1"
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         _SecondaryColor("Secondary Color", Color) = (1, 1, 1, 1)
+        _ColorContrast("Color Contrast", Float) = 2
         _HeightTexture("Height Texture", 2D) = "gray" {}
         _HeightTS("Height Tiling and Offset", Vector) = (1, 1, 0, 0)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
@@ -70,6 +71,7 @@ Shader "Custom/Task3Shader1"
                 half4 _HeightTS;
                 half3 _BaseColor;
                 half3 _SecondaryColor;
+                half _ColorContrast;
                 half _Smoothness;
                 half _Metallic;
                 half _Occlusion;
@@ -106,7 +108,7 @@ Shader "Custom/Task3Shader1"
                 output.positionHCS = TransformWorldToHClip(output.positionWS);
                 output.normalWS = normalize(half3(-texture_value_derivative.x, 1.0, -texture_value_derivative.y));
                 output.uv = input.uv;
-                output.height = height;
+                output.height = saturate(height * _ColorContrast + 0.5);
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS, output.vertexSH);

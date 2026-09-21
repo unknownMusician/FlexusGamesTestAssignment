@@ -3,7 +3,8 @@ Shader "Custom/Task5OscillationShader1"
     Properties
     {
         [MainTexture] _MainTex("_MainTex", 2D) = "gray" {}
-        _Damping("Damping", Float) = 0.1
+        _VelocityDamping("Velocity Damping", Float) = 0.1
+        _DisturbanceDamping("Disturbance Damping", Float) = 0.1
         _Acceleration("Acceleration", Float) = 1.0
         _SimulationSpeed("Simulation Speed", Float) = 1.0
     }
@@ -43,7 +44,8 @@ Shader "Custom/Task5OscillationShader1"
             CBUFFER_START(UnityPerMaterial)
                 TEXTURE2D(_MainTex);
                 SAMPLER(sampler_point_clamp_MainTex);
-                half _Damping;
+                half _VelocityDamping;
+                half _DisturbanceDamping;
                 half _Acceleration;
                 half _SimulationSpeed;
             CBUFFER_END
@@ -69,11 +71,11 @@ Shader "Custom/Task5OscillationShader1"
                 half acceleration = -height * _Acceleration;
                 
                 velocity += acceleration * dt;
-                velocity *= exp(-_Damping * dt);
+                velocity *= exp(-_VelocityDamping * dt);
 
                 height += velocity * dt;
 
-                half disturbance = max(textureValue.z, abs(height) * 2.0) * 0.995;
+                half disturbance = max(textureValue.z, abs(height) * 2.0) * exp(-_DisturbanceDamping * dt);
 
                 return half4(height, velocity, disturbance, 1.0);
             }

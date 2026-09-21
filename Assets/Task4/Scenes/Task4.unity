@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.43962562, y: 0, z: 0, w: 0.89818114}
-  m_LocalPosition: {x: 0, y: 7.77, z: -7.18}
+  m_LocalPosition: {x: 0, y: 15.5, z: -14.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -514,7 +514,6 @@ MonoBehaviour:
     BorderWidth: 0.5
     BorderAmplitude: 0.5
   renderTextureSrc: {fileID: 8400000, guid: ca384cc4a733b0e418372b491b51669c, type: 2}
-  oscillationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
   simulationMaterial: {fileID: 2100000, guid: d5b081772ed4ee84993c08446a1e95dd, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

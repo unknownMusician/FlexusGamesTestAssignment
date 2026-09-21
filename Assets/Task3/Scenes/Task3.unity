@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.43962562, y: 0, z: 0, w: 0.89818114}
-  m_LocalPosition: {x: 0, y: 7.77, z: -7.18}
+  m_LocalPosition: {x: 0, y: 15.5, z: -14.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -483,6 +483,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 948c4ec8f0a145cc888845c979b0baee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Task3ScriptUpdateRenderTexture
+  drawAssets:
+    PlaneTransform: {fileID: 645211720}
+    PlaneMeshFilter: {fileID: 645211722}
+    RenderTextureDst: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
+    DrawMaterial: {fileID: 2100000, guid: 978de180a6b83624792b7e9bff4768c0, type: 2}
   drawProperties:
     AlphaOffsetScaling: 1
     DrawRadius: 1
@@ -490,27 +495,9 @@ MonoBehaviour:
     NormalizedAlphaOffsetCap: 0.489
     NormalizedMaxDragDistance: 0.5
     AdditionalDragPointAttraction: 0.35
-    DrawOpacity: 0.078
+    DrawOpacity: 0.15
     BorderWidth: 1
     BorderAmplitude: 0.606
-  drawAssets:
-    PlaneTransform: {fileID: 645211720}
-    PlaneMeshFilter: {fileID: 645211722}
-    RenderTextureDst: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
-    DrawMaterial: {fileID: 2100000, guid: 978de180a6b83624792b7e9bff4768c0, type: 2}
-  planeTransform: {fileID: 645211720}
-  planeMeshFilter: {fileID: 645211722}
-  renderTexture0: {fileID: 8400000, guid: e80fd24655fe4124e84d711acd4b8120, type: 2}
-  drawMaterial: {fileID: 2100000, guid: 978de180a6b83624792b7e9bff4768c0, type: 2}
-  alphaOffsetScaling: 1
-  drawRadius: 1
-  elevationAdditionRadius: 0.2
-  normalizedAlphaOffsetCap: 0.489
-  normalizedMaxDragDistance: 0.5
-  additionalDragPointAttraction: 0.35
-  drawOpacity: 0.078
-  borderWidth: 1
-  borderAmplitude: 0.606
 --- !u!4 &1783078409
 Transform:
   m_ObjectHideFlags: 0

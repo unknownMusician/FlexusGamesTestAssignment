@@ -35,7 +35,7 @@ Material:
     - _NoiseScale: 0.75
     - _NoiseSpeed: 9.43
     - _Occlusion: 0.423
-    - _SkewNoiseAmplitude: 0.5
+    - _SkewNoiseAmplitude: 1
     - _SkewNoiseAnisotropy: 1
     - _SkewNoiseScale: 0.54
     - _SkewNoiseSpeed: 5.7

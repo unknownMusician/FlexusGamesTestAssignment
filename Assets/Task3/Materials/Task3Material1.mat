@@ -33,6 +33,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _ColorContrast: 2
     - _FresnelPow: 0.3
     - _Metallic: 0
     - _Noise: 1
@@ -44,9 +45,9 @@ Material:
     - _PresureRange: 0.5
     - _Smoothness: 0.677
     m_Colors:
-    - _BaseColor: {r: 0.07440368, g: 0.097521745, b: 0.8301887, a: 1}
+    - _BaseColor: {r: 0.074509785, g: 0.83137256, b: 0.23145919, a: 1}
     - _ColorSmoothStep: {r: 0.04, g: 0.64, b: 0, a: 0}
     - _HeightTS: {r: 10, g: 10, b: -5, a: -5}
-    - _SecondaryColor: {r: 0.049663108, g: 0.990566, b: 0, a: 1}
+    - _SecondaryColor: {r: 0.95117885, g: 0.99215686, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

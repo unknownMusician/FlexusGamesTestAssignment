@@ -180,9 +180,9 @@ Shader "Custom/Task5Shader1"
                 // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 3));
                 // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 4));
                 // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 5));
-                float dist = abs(frac(screenNoise + _Time.x * 0.01) - 0.5);
+                float dist = abs(frac(screenNoise + _Time.x * 0.08) - 0.5);
                 
-                albedo += smoothstep(0.0001, 0, dist) * smoothstep(0.2, 0.4, input.disturbance);
+                albedo += smoothstep(0.001, 0, dist) * smoothstep(0.1, 0.2, input.disturbance);
                 float2 voronoiCell;
                 half voronoiDist = VoronoiNoise(input.positionWS.xz * 5, 0.5, voronoiCell);
                 voronoiCell /= 5;

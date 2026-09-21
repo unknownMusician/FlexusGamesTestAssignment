@@ -31,7 +31,9 @@ Material:
     m_Floats:
     - _Acceleration: 10
     - _Damping: 1
+    - _DisturbanceDamping: 0.2
     - _SimulationSpeed: 1
+    - _VelocityDamping: 1
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
