@@ -21,6 +21,7 @@ Shader "Custom/Task5Shader1"
         _NoiseScale("Noise Scale", Float) = 1.0
         _NoiseSpeed("Noise Speed", Float) = 1.0
         _NoiseAmplitude("Noise Amplitude", Float) = 1.0
+        _VoronoiScale("Voronoi Scale", Float) = 5.0
     }
 
     SubShader
@@ -45,7 +46,6 @@ Shader "Custom/Task5Shader1"
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _FORWARD_PLUS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -93,6 +93,7 @@ Shader "Custom/Task5Shader1"
                 half _NoiseAmplitude;
                 half _IdleSmoothness;
                 half _IdleMetallic;
+                half _VoronoiScale;
             CBUFFER_END
 
             half4 CalculateNoise(half2 uv)
@@ -108,29 +109,27 @@ Shader "Custom/Task5Shader1"
                 
                 return hsv.z * lerp(float3(1.0, 1.0, 1.0), rgbComponents, hsv.y);
             }
-            
-            half SampleHueByHeight(half height)
+
+            half2 TransformWorldToTexture(half2 positionWS)
             {
-                return height * _HueDepth + _HueCenter;
-                
-                half centerHeight = (_TopColorHeight + _BottomColorHeight) * 0.5;
-
-                height = (height - centerHeight) / (_TopColorHeight - centerHeight);
-                height = clamp(height, -1, 1);
-
-                half3 topColor = lerp(_BaseColor, _TopColor, saturate(height));
-                half3 bottomColor = lerp(_BaseColor, _BottomColor, saturate(-height));
-                return lerp(bottomColor, topColor, step(0, height));
+                return (positionWS - _HeightTS.zw) / _HeightTS.xy;
             }
-
+            
             half CalculateHeight(half2 positionWS)
             {
-                half2 heightUv = (positionWS - _HeightTS.zw) / _HeightTS.xy;
+                half2 heightUv = TransformWorldToTexture(positionWS);
                 half texture_height = SAMPLE_TEXTURE2D_LOD(_HeightTexture, sampler_HeightTexture, heightUv, 0).x * _PressureRange;
 
                 half noise_height = CalculateNoise(positionWS).z;
 
                 return texture_height + noise_height; 
+            }
+
+            half CalculateGlitter(half2 renderPos, half disturbance)
+            {
+                float screenNoise = PerlinNoise3D(float3(float2(int2(renderPos)) / 3.1254, 1));
+                float dist = abs(frac(screenNoise + _Time.x * 0.08) - 0.5);
+                return smoothstep(0.001, 0, dist) * smoothstep(0.1, 0.2, disturbance);
             }
             
             VertexOutput vert(Attributes input)
@@ -138,7 +137,7 @@ Shader "Custom/Task5Shader1"
                 VertexOutput output;
 
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                half2 heightUv = (output.positionWS.xz - _HeightTS.zw) / _HeightTS.xy;
+                half2 heightUv = TransformWorldToTexture(output.positionWS.xz);
 
                 half epsilon = 0.05;
 
@@ -167,74 +166,38 @@ Shader "Custom/Task5Shader1"
             {
                 half disturbance = smoothstep(0, 0.1, input.disturbance);
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
-                half3 normalWS = normalize(input.normalWS);
-                half3 albedo = HsvToRgb(float3(SampleHueByHeight(input.height), 1.0, 1.0));
-                albedo = lerp(_IdleColor, albedo, disturbance);
+                half3 disturbedNormalWS = normalize(input.normalWS);
+                half3 disturbedAlbedo = HsvToRgb(float3(input.height * _HueDepth + _HueCenter, 1.0, 1.0));
 
-                half noiseHash0 = WhiteNoise(float3(input.positionWS.xz, 100));
-                half noiseHash1 = WhiteNoise(float3(input.positionWS.xz, 110));
-
-                
-                float screenNoise = PerlinNoise3D(float3(float2(int2(renderPos.xy)) / 3.1254, 1));
-                // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 2));
-                // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 3));
-                // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 4));
-                // screenNoise += WhiteNoise(float3(float2(int2(renderPos.xy)), 5));
-                float dist = abs(frac(screenNoise + _Time.x * 0.08) - 0.5);
-                
-                albedo += smoothstep(0.001, 0, dist) * smoothstep(0.1, 0.2, input.disturbance);
+                disturbedAlbedo += CalculateGlitter(renderPos.xy, input.disturbance);
                 float2 voronoiCell;
-                half voronoiDist = VoronoiNoise(input.positionWS.xz * 5, 0.5, voronoiCell);
-                voronoiCell /= 5;
-                half3 glitterDir = normalize(half3(
-                    WhiteNoise(float3(voronoiCell, 0)) * 2 - 1,
-                    0.1,
-                    WhiteNoise(float3(voronoiCell, 3)) * 2 - 1
-                ));
+                VoronoiNoise(input.positionWS.xz * _VoronoiScale, 0.5, voronoiCell);
+                voronoiCell /= _VoronoiScale;
 
-                //half icedBlockHash = PerlinNoise2D(voronoiCell * 0.1 + float2(_Time.x * 10, 3)) * 0.5 + 0.5;
-                half icedBlockHash = PerlinNoise2D(voronoiCell * 0.1) * 0.5 + 0.5;
-                
+                half icedBlockHash = PerlinNoise2D(voronoiCell * 0.5) * 0.5 + 0.5;
                 half3 icedBlockDir = normalize(half3(
                     WhiteNoise(float3(icedBlockHash, icedBlockHash, 0)) * 2 - 1,
                     0.1,
                     WhiteNoise(float3(icedBlockHash, icedBlockHash, 3)) * 2 - 1
                 ));
-
                 
-                half2 heightUv = (voronoiCell - _HeightTS.zw) / _HeightTS.xy;
+                half2 heightUv = TransformWorldToTexture(voronoiCell);
                 half sellDisturbance = smoothstep(0, 0.1, SAMPLE_TEXTURE2D(_HeightTexture, sampler_HeightTexture, heightUv).z);
-                //sellDisturbance = smoothstep(0.01, 0.012, sellDisturbance);
 
                 
-                albedo = lerp(_IdleColor, albedo, sellDisturbance);
-
-                
-                //return PerlinNoise2D(voronoiCell * 0.1 + float2(_Time.x * 10, 3)) * 0.5 + 0.5;
-                //return PerlinNoise2D(voronoiCell + float2(_Time.x * 10, 0));
-
-                //return step(voronoiDist, 1.5) * smoothstep(0.5, 1, dot(glitterDir, viewDirWS));
-                //return step(voronoiDist, 0.05) * smoothstep(0.8, 1, dot(glitterDir, viewDirWS));
-                ;
-                //return step(noiseHash0, 0.0) * step(noiseHash1, 0.2) * smoothstep(0.0, 1.0, dot(glitterDir, viewDirWS));
-                //return smoothstep(0.5, 0, abs(dot(viewDirWS, normalWS) - noiseHash0 * 100));
-                if (1 < 0.001)
-                {
-                    //return half4(1, 1, 1, 1);
-                }
-
-                half3 calmNormal = normalize(normalWS + icedBlockDir * 0.02);
+                half3 albedo = lerp(_IdleColor, disturbedAlbedo, sellDisturbance);
+                half3 idleNormal = normalize(disturbedNormalWS + icedBlockDir * 0.02);
 
                 float3 resultColor = FlexusTestCalculateLightingRealistic(
                     viewDirWS,
-                    normalize(lerp(calmNormal, normalWS, sellDisturbance)),
+                    normalize(lerp(idleNormal, disturbedNormalWS, sellDisturbance)),
                     input.positionWS,
                     input.positionHCS,
                     albedo,
                     lerp(_IdleMetallic, _Metallic, disturbance),
                     _Occlusion,
                     lerp(_IdleSmoothness, _Smoothness, disturbance),
-                    SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS)
+                    SAMPLE_GI(input.lightmapUV, input.vertexSH, disturbedNormalWS)
                 );
 
                 return half4(resultColor, 1.0);

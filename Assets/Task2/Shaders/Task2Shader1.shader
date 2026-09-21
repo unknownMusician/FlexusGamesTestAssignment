@@ -35,7 +35,6 @@ Shader "Custom/Task2Shader1"
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _FORWARD_PLUS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -60,8 +59,8 @@ Shader "Custom/Task2Shader1"
             };
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                half4 _SecondaryColor;
+                half3 _BaseColor;
+                half3 _SecondaryColor;
                 half2 _ColorSmoothStep;
                 half _Smoothness;
                 half _Metallic;

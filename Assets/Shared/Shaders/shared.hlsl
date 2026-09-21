@@ -47,30 +47,4 @@ half3 FlexusTestCalculateLightingRealistic(
     return pbr.xyz;
 }
 
-half3 FlexusTestCalculateLightingArtistic(
-    Light light,
-    float3 viewDirWS,
-    float3 normalWS,
-    float3 positionWS,
-    float4 positionCS,
-    half3 albedo,
-    half metallic,
-    half occlusion,
-    half smoothness,
-    half3 gi
-)
-{
-    half3 colorDiffuse = saturate(dot(light.direction, normalWS)) * albedo;// * (half(1.0) - _Smoothness);
-
-    half specularSmoothness = exp2(10 * smoothness + 1);
-    half3 colorSpecular = LightingSpecular(light.color, light.direction, normalWS, viewDirWS, 20.0, specularSmoothness) * smoothness;
-
-    float3 reflectDirWS = reflect(-viewDirWS, normalWS);
-    half3 colorGlossy = GlossyEnvironmentReflection(reflectDirWS, positionWS, half(1.0) - smoothness, half(1.0)) * smoothness * occlusion;
-
-    half3 colorReflect = (colorSpecular + colorGlossy) * lerp(half3(1.0, 1.0, 1.0), albedo, metallic);
-                
-    return albedo + colorReflect;
-}
-
 #endif

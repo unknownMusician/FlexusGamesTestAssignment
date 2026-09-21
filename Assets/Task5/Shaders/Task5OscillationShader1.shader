@@ -25,7 +25,6 @@ Shader "Custom/Task5OscillationShader1"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Shared/Shaders/noise.hlsl"
 
             struct Attributes
             {
@@ -64,7 +63,7 @@ Shader "Custom/Task5OscillationShader1"
             {
                 half dt = unity_DeltaTime.x * _SimulationSpeed;
                 
-                half3 textureValue = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp_MainTex, input.uv);
+                half3 textureValue = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp_MainTex, input.uv).xyz;
 
                 half height = textureValue.x;
                 half velocity = textureValue.y;

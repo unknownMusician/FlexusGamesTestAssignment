@@ -36,8 +36,8 @@ Material:
     - _DrawOpacity: 0.2
     - _DrawRadius: 0.8
     m_Colors:
-    - _DrawAlphaCenter: {r: 0.6273136, g: 0.0000009536743, b: -3.4648552, a: 0}
-    - _DrawHeightCenter: {r: 0.046370327, g: -0.0000004618845, b: -3.8487387, a: 0}
+    - _DrawAlphaCenter: {r: 0.6410013, g: 0, b: -4.1940136, a: 0}
+    - _DrawHeightCenter: {r: 0.55190605, g: -0.00000036164928, b: -3.8057246, a: 0}
     - _UvTS: {r: 10, g: 10, b: -5, a: -5}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

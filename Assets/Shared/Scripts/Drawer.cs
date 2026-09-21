@@ -57,14 +57,7 @@ public sealed class Drawer
             this.lastDragPoint = drawPoint;
         }
 
-        //
-
-        var boundsWS = assets.PlaneMeshFilter.sharedMesh.bounds;
-        boundsWS.center += assets.PlaneTransform.localToWorldMatrix.GetPosition();
-        boundsWS.extents.Scale(assets.PlaneTransform.localToWorldMatrix.lossyScale);
-
-        var uvTilingOffset = new Vector4(boundsWS.size.x, boundsWS.size.z, boundsWS.min.x, boundsWS.min.z);
-        //
+        var uvTilingOffset = ToPlaneUvTilingOffset(assets);
         
         assets.DrawMaterial.SetVector(ShaderProperties.UvTs, uvTilingOffset);
         assets.DrawMaterial.SetVector(ShaderProperties.DrawHeightCenter, new Vector4(dragPoint.x, dragPoint.y, dragPoint.z, 0.0f));
@@ -74,9 +67,19 @@ public sealed class Drawer
         assets.DrawMaterial.SetFloat(ShaderProperties.DrawOpacity, properties.DrawOpacity);
         assets.DrawMaterial.SetFloat(ShaderProperties.BorderWidth, properties.BorderWidth);
         assets.DrawMaterial.SetFloat(ShaderProperties.BorderAmplitude, properties.BorderAmplitude);
+
         Graphics.Blit(renderTextureSrc, assets.RenderTextureDst, assets.DrawMaterial);
 
         return true;
+    }
+
+    private static Vector4 ToPlaneUvTilingOffset(DrawAssets assets)
+    {
+        var boundsWS = assets.PlaneMeshFilter.sharedMesh.bounds;
+        boundsWS.center += assets.PlaneTransform.localToWorldMatrix.GetPosition();
+        boundsWS.extents.Scale(assets.PlaneTransform.localToWorldMatrix.lossyScale);
+
+        return new Vector4(boundsWS.size.x, boundsWS.size.z, boundsWS.min.x, boundsWS.min.z);
     }
     
     private static Vector3? GetDrawPoint(Transform planeTransform)

@@ -62,7 +62,7 @@ Shader "Custom/Task4OscillationShader1"
             {
                 half dt = unity_DeltaTime.x * _SimulationSpeed;
                 
-                half2 textureValue = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp_MainTex, input.uv);
+                half2 textureValue = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp_MainTex, input.uv).xy;
 
                 half height = textureValue.x;
                 half velocity = textureValue.y;

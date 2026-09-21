@@ -27,7 +27,7 @@ public sealed class ScenesMenu : MonoBehaviour
         {
             var sceneButton = Instantiate(buttonPrefab, buttonsContainer);
             sceneButton.Text.text = scene.SceneTitle;
-            sceneButton.Button.onClick.AddListener(() => OpenScene(scene.SceneName));
+            sceneButton.Button.onClick.AddListener(() => OpenScene(scene));
         }
 
         backButton.gameObject.SetActive(false);
@@ -42,20 +42,12 @@ public sealed class ScenesMenu : MonoBehaviour
         SceneManager.LoadSceneAsync(mainSceneName);
     }
 
-    private void OpenScene(string sceneName)
+    private void OpenScene(SceneInfo scene)
     {
-        titleText.text = sceneName;
+        titleText.text = scene.SceneTitle;
         backButton.gameObject.SetActive(true);
         buttonsContainer.gameObject.SetActive(false);
 
-        SceneManager.LoadSceneAsync(sceneName);
-    }
-
-    private static void UnloadActiveScene()
-    {
-        foreach (var obj in SceneManager.GetActiveScene().GetRootGameObjects())
-        {
-            Destroy(obj);
-        }
+        SceneManager.LoadSceneAsync(scene.SceneName);
     }
 }

@@ -42,6 +42,7 @@ Material:
     - _PressureRange: 2
     - _Smoothness: 0.508
     - _TopColorHeight: 0.4
+    - _VoronoiScale: 5
     m_Colors:
     - _BaseColor: {r: 1, g: 0.07296246, b: 0, a: 1}
     - _BottomColor: {r: 1, g: 0.9220363, b: 0, a: 1}

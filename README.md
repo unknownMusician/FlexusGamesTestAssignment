@@ -91,6 +91,8 @@ The ice is just the same surface, but with different smoothness and metallic (to
 
 Also, I've added some glitter. I wanted the dots to gradually appear and disappear at random positions, but world space noise sampling doesn't provide stable hash results, so random points only appeared for a single frame. I decided to take the pixel screen position, which has stable hash and made it appear and disappear gradually.
 
+The disturbed water is just a gradient of colors. It was an interpolation first, but it didn't look as vibrant as the reference, so I turned it into a function that calculates the hue based on the height and uses it in hsv-to-rgb conversion into the albedo.
+
 ![](DocsAssets/image-5.png)
 
 ## Potential Future Improvements
@@ -110,3 +112,5 @@ The screen-space glitter looks more like a window into space instead of a surfac
 At first the drawing behaviors had access to render materials (not only the draw materials like now) and they controlled the TilingOffset of the textures based on where the texture is located (world-to-texture and texture-to-world uv conversions). Now the TilingOffset is there, but is not updated automatically.
 
 The **Graphics.Blit** can be changed into a render feature to be more inline with the Unity render architecture and RenderGraph. I didn't do it here, because this is just a demonstration of shaders, not their integration into the game.
+
+The half/float precision is not consistent in the code. I mostly used half where applicable, but there are some places where the 32-bit float is redundant.
