@@ -4,10 +4,11 @@ This is a Serhii Ovchynnikov's Solution for the [Test assignment for the Graphic
 
 # Build and Videos
 
-(**todo**) An .apk build and a video can be found in [Releases](./releases).
+(**todo**) An .apk build and a video can be found in Releases.
 
 # Project Structure
 
+This is a Unity project.
 The Project is structured in a Task-oriented way:
 - The assets related to every task are placed into respective **Assets/Task{N}** folder
 - The shared assets are placed into **Assets/Shared** folder
